@@ -59,6 +59,42 @@ const Index = () => {
     { icon: 'Trophy', title: 'Множество концовок', desc: 'Откройте все секреты и достижения игры' }
   ]);
   const [showItemsDialog, setShowItemsDialog] = useState(false);
+  const [showReplayabilityDialog, setShowReplayabilityDialog] = useState(false);
+  const [showBossesDialog, setShowBossesDialog] = useState(false);
+  const [showEndingsDialog, setShowEndingsDialog] = useState(false);
+
+  const bossCategories = [
+    {
+      name: 'Обычные боссы',
+      count: 40,
+      desc: 'Боссы, которые появляются в обычных комнатах',
+      examples: ['Монстро', 'Гурди', 'Гемини', 'Чаз']
+    },
+    {
+      name: 'Главные боссы',
+      count: 30,
+      desc: 'Боссы в конце каждого этажа',
+      examples: ['Мама', 'Сатана', 'Исаак', 'Большой Боб']
+    },
+    {
+      name: 'Финальные боссы',
+      count: 15,
+      desc: 'Самые сильные боссы игры',
+      examples: ['Мега-Сатана', 'Делирий', 'Чудовище', 'Ультра Жадность']
+    },
+    {
+      name: 'Секретные боссы',
+      count: 20,
+      desc: 'Скрытые боссы с уникальными механиками',
+      examples: ['Трещина', 'Разноцветная Мама', 'Корпус', 'Тень Смерти']
+    }
+  ];
+
+  const endingsList = [
+    { name: 'Классические концовки', count: 7, desc: 'Победа над Мамой, Сатаной и другими' },
+    { name: 'Секретные концовки', count: 10, desc: 'Скрытые концовки за выполнение особых условий' },
+    { name: 'Концовки персонажей', count: 50, desc: 'Уникальные концовки для каждого из 34 персонажей' }
+  ];
 
   const itemCategories = [
     {
@@ -395,7 +431,12 @@ const Index = () => {
               <Card 
                 key={idx} 
                 className="hover-scale bg-card/50 backdrop-blur-sm border-border/50 cursor-pointer transition-all"
-                onClick={() => idx === 1 && setShowItemsDialog(true)}
+                onClick={() => {
+                  if (idx === 0) setShowReplayabilityDialog(true);
+                  if (idx === 1) setShowItemsDialog(true);
+                  if (idx === 2) setShowBossesDialog(true);
+                  if (idx === 3) setShowEndingsDialog(true);
+                }}
               >
                 <CardHeader>
                   <div className="w-12 h-12 rounded-lg bg-primary/20 flex items-center justify-center mb-4">
@@ -567,6 +608,78 @@ const Index = () => {
         </DialogContent>
       </Dialog>
 
+      <Dialog open={showReplayabilityDialog} onOpenChange={setShowReplayabilityDialog}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold flex items-center gap-3">
+              <Icon name="Gamepad2" className="text-primary" size={28} />
+              Бесконечная реиграбельность
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6 mt-4">
+            <p className="text-muted-foreground">
+              The Binding of Isaac — это roguelike игра, где каждое прохождение абсолютно уникально. 
+              Никогда не знаешь, что ждёт за следующей дверью!
+            </p>
+            
+            <div className="grid gap-4">
+              <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Icon name="Shuffle" size={20} className="text-primary" />
+                    Процедурная генерация
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <p className="text-sm text-muted-foreground">Каждый этаж генерируется случайно</p>
+                  <p className="text-sm text-muted-foreground">Уникальная раскладка комнат в каждом забеге</p>
+                  <p className="text-sm text-muted-foreground">Случайное размещение врагов и препятствий</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Icon name="Users" size={20} className="text-primary" />
+                    34 играбельных персонажа
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <p className="text-sm text-muted-foreground">Каждый персонаж с уникальными способностями</p>
+                  <p className="text-sm text-muted-foreground">Разные стартовые предметы и характеристики</p>
+                  <p className="text-sm text-muted-foreground">Собственные испытания для каждого героя</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Icon name="Map" size={20} className="text-primary" />
+                    Множество локаций
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <p className="text-sm text-muted-foreground">13+ уникальных этажей для исследования</p>
+                  <p className="text-sm text-muted-foreground">Секретные комнаты и альтернативные пути</p>
+                  <p className="text-sm text-muted-foreground">Специальные испытания и мини-игры</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="bg-primary/10 border border-primary/20 rounded-lg p-4">
+              <h4 className="font-semibold mb-2 flex items-center gap-2">
+                <Icon name="TrendingUp" size={18} className="text-primary" />
+                Растущая сложность
+              </h4>
+              <p className="text-sm text-muted-foreground">
+                С каждым разблокированным достижением игра становится сложнее и интереснее. 
+                Новые враги, предметы и испытания держат игру свежей даже после сотен часов!
+              </p>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={showItemsDialog} onOpenChange={setShowItemsDialog}>
         <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
@@ -615,6 +728,118 @@ const Index = () => {
                 Многие предметы взаимодействуют друг с другом, создавая уникальные эффекты. 
                 Например, сочетание определённых слёз с усилителями урона может превратить вашего персонажа 
                 в настоящую машину разрушения!
+              </p>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showBossesDialog} onOpenChange={setShowBossesDialog}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold flex items-center gap-3">
+              <Icon name="Skull" className="text-primary" size={28} />
+              100+ боссов в The Binding of Isaac
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6 mt-4">
+            <p className="text-muted-foreground">
+              Игра наполнена разнообразными боссами, каждый из которых требует уникального подхода. 
+              От простых до невероятно сложных — испытайте себя!
+            </p>
+            
+            <div className="grid gap-4">
+              {bossCategories.map((category, idx) => (
+                <Card key={idx} className="bg-card/50 backdrop-blur-sm border-border/50">
+                  <CardHeader>
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <CardTitle className="text-lg">{category.name}</CardTitle>
+                        <Badge variant="outline" className="mt-2">{category.count} боссов</Badge>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground mb-3">{category.desc}</p>
+                    <div className="flex flex-wrap gap-2">
+                      {category.examples.map((boss, i) => (
+                        <Badge key={i} variant="secondary" className="text-xs">
+                          {boss}
+                        </Badge>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            <div className="bg-primary/10 border border-primary/20 rounded-lg p-4">
+              <h4 className="font-semibold mb-2 flex items-center gap-2">
+                <Icon name="Sword" size={18} className="text-primary" />
+                Уникальные механики боссов
+              </h4>
+              <p className="text-sm text-muted-foreground">
+                Каждый босс имеет собственные атаки и паттерны. Некоторые призывают миньонов, 
+                другие меняют арену боя, а третьи могут телепортироваться или становиться неуязвимыми!
+              </p>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showEndingsDialog} onOpenChange={setShowEndingsDialog}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold flex items-center gap-3">
+              <Icon name="Trophy" className="text-primary" size={28} />
+              Множество концовок
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6 mt-4">
+            <p className="text-muted-foreground">
+              В игре множество различных концовок, каждая из которых рассказывает свою часть истории Исаака. 
+              Откройте их все, чтобы узнать полную картину!
+            </p>
+            
+            <div className="grid gap-4">
+              {endingsList.map((ending, idx) => (
+                <Card key={idx} className="bg-card/50 backdrop-blur-sm border-border/50">
+                  <CardHeader>
+                    <div className="flex justify-between items-start">
+                      <CardTitle className="text-lg">{ending.name}</CardTitle>
+                      <Badge variant="outline">{ending.count} концовок</Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground">{ending.desc}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Icon name="Award" size={20} className="text-primary" />
+                  637 достижений
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <p className="text-sm text-muted-foreground">Разблокируйте новых персонажей</p>
+                <p className="text-sm text-muted-foreground">Получите доступ к новым предметам</p>
+                <p className="text-sm text-muted-foreground">Откройте секретные области</p>
+                <p className="text-sm text-muted-foreground">Испытайте себя в сложных челленджах</p>
+              </CardContent>
+            </Card>
+
+            <div className="bg-primary/10 border border-primary/20 rounded-lg p-4">
+              <h4 className="font-semibold mb-2 flex items-center gap-2">
+                <Icon name="Star" size={18} className="text-primary" />
+                Полное прохождение
+              </h4>
+              <p className="text-sm text-muted-foreground">
+                Получение всех концовок и достижений — это настоящий вызов, требующий сотни часов игры. 
+                Но каждая разблокировка добавляет новый контент и делает игру ещё интереснее!
               </p>
             </div>
           </div>
