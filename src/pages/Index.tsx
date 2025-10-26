@@ -30,6 +30,8 @@ interface GameInfo {
   steam_url: string;
 }
 
+const API_URL = 'https://functions.poehali.dev/a8383e6f-b009-472b-9709-7e0a1db14377';
+
 const Index = () => {
   const { toast } = useToast();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -37,6 +39,7 @@ const Index = () => {
   const [gameInfo, setGameInfo] = useState<GameInfo | null>(null);
   const [showLoginDialog, setShowLoginDialog] = useState(false);
   const [showReviewDialog, setShowReviewDialog] = useState(false);
+  const [needAuthForReview, setNeedAuthForReview] = useState(false);
   const [loginData, setLoginData] = useState({ username: '', password: '' });
   const [registerData, setRegisterData] = useState({ username: '', password: '' });
   const [reviewData, setReviewData] = useState({ rating: 5, comment: '' });
@@ -70,41 +73,78 @@ const Index = () => {
   };
 
   const loadGameInfo = async () => {
-    setGameInfo({
-      title: 'The Binding of Isaac: Rebirth',
-      description: 'Культовая roguelike-игра с мрачной атмосферой и бесконечной реиграбельностью. Погрузитесь в подземелья, полные опасностей, секретов и уникальных предметов.',
-      cover_url: 'https://cdn.poehali.dev/files/13c3ecbd-b913-441e-a99b-26ba68eba37e.png',
-      steam_url: 'https://store.steampowered.com/app/113200/The_Binding_of_Isaac/'
-    });
+    try {
+      const response = await fetch(`${API_URL}?action=get_game_info`);
+      const data = await response.json();
+      if (data.title) {
+        setGameInfo(data);
+      }
+    } catch (error) {
+      console.error('Error loading game info:', error);
+    }
   };
 
   const loadReviews = async () => {
-    const mockReviews: Review[] = [
-      { id: 1, username: 'DarkGamer', rating: 5, comment: 'Невероятная игра! Каждое прохождение уникально.', is_approved: true, created_at: '2025-01-15' },
-      { id: 2, username: 'IsaacFan', rating: 5, comment: 'Лучший рогалик! Уже 500+ часов наиграл.', is_approved: true, created_at: '2025-01-10' }
-    ];
-    setReviews(mockReviews);
+    try {
+      const response = await fetch(`${API_URL}?action=get_reviews`);
+      const data = await response.json();
+      setReviews(data);
+    } catch (error) {
+      console.error('Error loading reviews:', error);
+    }
   };
 
   const handleLogin = async () => {
-    if (loginData.username === 'admin' && loginData.password === 'admin123') {
-      const user = { id: 1, username: 'admin', is_admin: true };
-      setCurrentUser(user);
-      localStorage.setItem('user', JSON.stringify(user));
-      setShowLoginDialog(false);
-      toast({ title: 'Добро пожаловать, администратор!' });
-    } else {
-      toast({ title: 'Неверный логин или пароль', variant: 'destructive' });
+    try {
+      const response = await fetch(`${API_URL}?action=login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(loginData)
+      });
+      
+      if (response.ok) {
+        const user = await response.json();
+        setCurrentUser(user);
+        localStorage.setItem('user', JSON.stringify(user));
+        setShowLoginDialog(false);
+        toast({ title: user.is_admin ? 'Добро пожаловать, администратор!' : 'Добро пожаловать!' });
+        
+        if (needAuthForReview) {
+          setNeedAuthForReview(false);
+          setShowReviewDialog(true);
+        }
+      } else {
+        toast({ title: 'Неверный логин или пароль', variant: 'destructive' });
+      }
+    } catch (error) {
+      toast({ title: 'Ошибка входа', variant: 'destructive' });
     }
   };
 
   const handleRegister = async () => {
-    if (registerData.username && registerData.password) {
-      const user = { id: 2, username: registerData.username, is_admin: false };
-      setCurrentUser(user);
-      localStorage.setItem('user', JSON.stringify(user));
-      setShowLoginDialog(false);
-      toast({ title: 'Регистрация успешна!' });
+    try {
+      const response = await fetch(`${API_URL}?action=register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(registerData)
+      });
+      
+      if (response.ok) {
+        const user = await response.json();
+        setCurrentUser(user);
+        localStorage.setItem('user', JSON.stringify(user));
+        setShowLoginDialog(false);
+        toast({ title: 'Регистрация успешна!' });
+        
+        if (needAuthForReview) {
+          setNeedAuthForReview(false);
+          setShowReviewDialog(true);
+        }
+      } else {
+        toast({ title: 'Ошибка регистрации', variant: 'destructive' });
+      }
+    } catch (error) {
+      toast({ title: 'Ошибка регистрации', variant: 'destructive' });
     }
   };
 
@@ -120,43 +160,83 @@ const Index = () => {
       return;
     }
 
-    const newReview: Review = {
-      id: reviews.length + 1,
-      username: currentUser.username,
-      rating: reviewData.rating,
-      comment: reviewData.comment,
-      is_approved: currentUser.is_admin,
-      created_at: new Date().toISOString()
-    };
+    try {
+      const response = await fetch(`${API_URL}?action=create_review`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: currentUser.id,
+          rating: reviewData.rating,
+          comment: reviewData.comment,
+          is_admin: currentUser.is_admin
+        })
+      });
 
-    setReviews([newReview, ...reviews]);
-    setShowReviewDialog(false);
-    setReviewData({ rating: 5, comment: '' });
-    toast({ title: currentUser.is_admin ? 'Отзыв опубликован' : 'Отзыв отправлен на модерацию' });
+      if (response.ok) {
+        await loadReviews();
+        setShowReviewDialog(false);
+        setReviewData({ rating: 5, comment: '' });
+        toast({ title: currentUser.is_admin ? 'Отзыв опубликован' : 'Отзыв отправлен на модерацию' });
+      }
+    } catch (error) {
+      toast({ title: 'Ошибка отправки отзыва', variant: 'destructive' });
+    }
   };
 
-  const handleApproveReview = (reviewId: number) => {
-    setReviews(reviews.map(r => 
-      r.id === reviewId ? { ...r, is_approved: true } : r
-    ));
-    toast({ title: 'Отзыв одобрен' });
+  const handleApproveReview = async (reviewId: number) => {
+    try {
+      await fetch(`${API_URL}?action=update_review&id=${reviewId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ is_approved: true })
+      });
+      await loadReviews();
+      toast({ title: 'Отзыв одобрен' });
+    } catch (error) {
+      toast({ title: 'Ошибка', variant: 'destructive' });
+    }
   };
 
-  const handleDeleteReview = (reviewId: number) => {
-    setReviews(reviews.filter(r => r.id !== reviewId));
-    toast({ title: 'Отзыв удален' });
+  const handleDeleteReview = async (reviewId: number) => {
+    try {
+      await fetch(`${API_URL}?action=delete_review&id=${reviewId}`, {
+        method: 'POST'
+      });
+      await loadReviews();
+      toast({ title: 'Отзыв удален' });
+    } catch (error) {
+      toast({ title: 'Ошибка', variant: 'destructive' });
+    }
   };
 
-  const handleSaveGameInfo = () => {
-    setGameInfo(editData);
-    setShowEditDialog(false);
-    toast({ title: 'Информация обновлена' });
+  const handleSaveGameInfo = async () => {
+    try {
+      await fetch(`${API_URL}?action=update_game_info`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editData)
+      });
+      await loadGameInfo();
+      setShowEditDialog(false);
+      toast({ title: 'Информация обновлена' });
+    } catch (error) {
+      toast({ title: 'Ошибка сохранения', variant: 'destructive' });
+    }
   };
 
   const openEditDialog = () => {
     if (gameInfo) {
       setEditData(gameInfo);
       setShowEditDialog(true);
+    }
+  };
+
+  const handleReviewClick = () => {
+    if (!currentUser) {
+      setNeedAuthForReview(true);
+      setShowLoginDialog(true);
+    } else {
+      setShowReviewDialog(true);
     }
   };
 
@@ -290,14 +370,14 @@ const Index = () => {
         <section className="mb-16">
           <div className="flex justify-between items-center mb-8">
             <h3 className="text-3xl font-bold">Отзывы игроков</h3>
-            {currentUser && (
-              <Dialog open={showReviewDialog} onOpenChange={setShowReviewDialog}>
-                <DialogTrigger asChild>
-                  <Button className="gap-2">
-                    <Icon name="Plus" size={20} />
-                    Оставить отзыв
-                  </Button>
-                </DialogTrigger>
+            <Dialog open={showReviewDialog} onOpenChange={setShowReviewDialog}>
+              <DialogTrigger asChild>
+                <Button className="gap-2" onClick={handleReviewClick}>
+                  <Icon name="Plus" size={20} />
+                  Оставить отзыв
+                </Button>
+              </DialogTrigger>
+              {currentUser && (
                 <DialogContent>
                   <DialogHeader>
                     <DialogTitle>Ваш отзыв</DialogTitle>
@@ -330,8 +410,8 @@ const Index = () => {
                     </Button>
                   </div>
                 </DialogContent>
-              </Dialog>
-            )}
+              )}
+            </Dialog>
           </div>
 
           <div className="grid gap-6">

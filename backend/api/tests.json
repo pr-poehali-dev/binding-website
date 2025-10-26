@@ -1,0 +1,20 @@
+{
+  "tests": [
+    {
+      "name": "Get game info",
+      "method": "GET",
+      "path": "/?action=get_game_info",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "title": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Get reviews",
+      "method": "GET",
+      "path": "/?action=get_reviews",
+      "expectedStatus": 200
+    }
+  ]
+}
