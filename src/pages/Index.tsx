@@ -476,9 +476,6 @@ const Index = () => {
           <p className="text-muted-foreground mb-4">
             Фан-сайт The Binding of Isaac
           </p>
-          <div className="text-sm text-muted-foreground">
-            Админ-аккаунт: <code className="bg-muted px-2 py-1 rounded">admin / admin123</code>
-          </div>
         </div>
       </footer>
 
