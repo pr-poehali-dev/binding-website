@@ -58,6 +58,46 @@ const Index = () => {
     { icon: 'Skull', title: '100+ боссов', desc: 'Сражайтесь с разнообразными и опасными противниками' },
     { icon: 'Trophy', title: 'Множество концовок', desc: 'Откройте все секреты и достижения игры' }
   ]);
+  const [showItemsDialog, setShowItemsDialog] = useState(false);
+
+  const itemCategories = [
+    {
+      name: 'Пассивные предметы',
+      count: 300,
+      desc: 'Постоянно улучшают характеристики персонажа',
+      examples: ['Святой Грааль', 'Мома', 'Технология 2', 'Сатанинская Библия']
+    },
+    {
+      name: 'Активные предметы',
+      count: 150,
+      desc: 'Используются при нажатии клавиши, имеют перезарядку',
+      examples: ['Д-6', 'Гнилая Голова', 'Книга Белиала', 'Юдасова Тень']
+    },
+    {
+      name: 'Тринкеты',
+      count: 120,
+      desc: 'Дополнительные бонусы и специальные эффекты',
+      examples: ['Изогнутая монета', 'Левая Рука', 'Кровавый колпак', 'Карта сокровищ']
+    },
+    {
+      name: 'Карты Таро',
+      count: 22,
+      desc: 'Одноразовые карты с мощными эффектами',
+      examples: ['Шут', 'Императрица', 'Смерть', 'Солнце']
+    },
+    {
+      name: 'Руны и пилюли',
+      count: 50,
+      desc: 'Модификаторы слез и дополнительные предметы',
+      examples: ['Руна Багала', 'Пилюля Хаоса', 'Руна Дагаза', 'Пилюля Косточки']
+    },
+    {
+      name: 'Коллекционные',
+      count: 58,
+      desc: 'Редкие предметы для разблокировки секретов',
+      examples: ['Бумажный кораблик', 'Мамина помада', 'Спичка', 'Монетка']
+    }
+  ];
 
   useEffect(() => {
     loadGameInfo();
@@ -352,7 +392,11 @@ const Index = () => {
           <h3 className="text-3xl font-bold mb-8 text-center">Почему The Binding of Isaac?</h3>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {featuresList.map((feature, idx) => (
-              <Card key={idx} className="hover-scale bg-card/50 backdrop-blur-sm border-border/50">
+              <Card 
+                key={idx} 
+                className="hover-scale bg-card/50 backdrop-blur-sm border-border/50 cursor-pointer transition-all"
+                onClick={() => idx === 1 && setShowItemsDialog(true)}
+              >
                 <CardHeader>
                   <div className="w-12 h-12 rounded-lg bg-primary/20 flex items-center justify-center mb-4">
                     <Icon name={feature.icon} className="text-primary" size={24} />
@@ -519,6 +563,60 @@ const Index = () => {
             <Button className="w-full" onClick={handleSaveGameInfo}>
               Сохранить изменения
             </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showItemsDialog} onOpenChange={setShowItemsDialog}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold flex items-center gap-3">
+              <Icon name="Sparkles" className="text-primary" size={28} />
+              700+ предметов в The Binding of Isaac
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6 mt-4">
+            <p className="text-muted-foreground">
+              Игра содержит огромную коллекцию предметов, каждый из которых уникально изменяет геймплей. 
+              Предметы можно комбинировать, создавая мощные синергии!
+            </p>
+            
+            <div className="grid gap-4">
+              {itemCategories.map((category, idx) => (
+                <Card key={idx} className="bg-card/50 backdrop-blur-sm border-border/50">
+                  <CardHeader>
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <CardTitle className="text-lg">{category.name}</CardTitle>
+                        <Badge variant="outline" className="mt-2">{category.count} предметов</Badge>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground mb-3">{category.desc}</p>
+                    <div className="flex flex-wrap gap-2">
+                      {category.examples.map((item, i) => (
+                        <Badge key={i} variant="secondary" className="text-xs">
+                          {item}
+                        </Badge>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            <div className="bg-primary/10 border border-primary/20 rounded-lg p-4">
+              <h4 className="font-semibold mb-2 flex items-center gap-2">
+                <Icon name="Zap" size={18} className="text-primary" />
+                Синергии предметов
+              </h4>
+              <p className="text-sm text-muted-foreground">
+                Многие предметы взаимодействуют друг с другом, создавая уникальные эффекты. 
+                Например, сочетание определённых слёз с усилителями урона может превратить вашего персонажа 
+                в настоящую машину разрушения!
+              </p>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
