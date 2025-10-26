@@ -473,9 +473,7 @@ const Index = () => {
 
       <footer className="border-t border-border/50 py-8 mt-16">
         <div className="container mx-auto px-4 text-center">
-          <p className="text-muted-foreground mb-4">
-            Фан-сайт The Binding of Isaac
-          </p>
+          <p className="text-muted-foreground mb-4">Все права защищена. Фан-База 2025.</p>
         </div>
       </footer>
 
